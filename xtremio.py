@@ -925,6 +925,19 @@ class XtremIOISCSIDriver(XtremIOVolumeDriver, driver.ISCSIDriver):
                       'target_luns': [lunmap['lun']] * len(portals)}
         return properties
 
+    def terminate_connection(self, volume, connector, **kwargs):
+        (super(XtremIOISCSIDriver, self)
+         .terminate_connection(volume, connector, **kwargs))
+        num_vols = (self.client
+                    .num_of_mapped_volumes(self._get_ig_name(connector)))
+        if num_vols > 0:
+            return
+        else:
+            igName = self._get_ig_name(connector)
+            # delete the initiator group
+            self.client.req('initiator-groups', 'DELETE', name=igName, ver='v2')
+            LOG.debug('Deleted initiator group: %s', igName)
+
     def _get_initiator_names(self, connector):
         return [connector['initiator']]
 
