@@ -746,12 +746,12 @@ class XtremIOVolumeDriver(san.SanDriver):
         snapshots = objects.SnapshotList().get_all_for_cgsnapshot(
             context, cgsnapshot['id'])
 
+        snap_model_update = []
         for snapshot in snapshots:
-            snapshot.status = 'available'
-
+            snap_model_update.append({'id': snapshot.id, 'status': 'available'})
         model_update = {'status': 'available'}
 
-        return model_update, snapshots
+        return model_update, snap_model_update
 
     def delete_cgsnapshot(self, context, cgsnapshot, snapshots):
         """Deletes a cgsnapshot."""
